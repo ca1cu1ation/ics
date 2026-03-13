@@ -1,6 +1,7 @@
 #include "monitor/monitor.h"
 #include "monitor/expr.h"
 #include "monitor/watchpoint.h"
+#include "cpu/reg.h"
 #include "nemu.h"
 
 #include <stdlib.h>
@@ -37,6 +38,37 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_help(char *args);
+static int cmd_info(char *args);
+
+static void reg_display() {
+  int i;
+  for (i = 0; i < 8; i ++) {
+    printf("%3s\t0x%08x\t%u\n", regsl[i], reg_l(i), reg_l(i));
+  }
+  printf("eip\t0x%08x\t%u\n", cpu.eip, cpu.eip);
+}
+
+static int cmd_info(char *args) {
+  char *arg = strtok(args, " ");
+  if (arg == NULL) {
+    printf("Usage: info r|w\n");
+    return 0;
+  }
+
+  if (strcmp(arg, "r") == 0) {
+    reg_display();
+    return 0;
+  }
+
+  if (strcmp(arg, "w") == 0) {
+    wp_display();
+    return 0;
+  }
+
+  printf("Unknown info subcommand '%s'\n", arg);
+  printf("Usage: info r|w\n");
+  return 0;
+}
 
 static struct {
   char *name;
@@ -46,6 +78,7 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
 
   /* TODO: Add more commands */
 
