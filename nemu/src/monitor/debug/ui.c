@@ -33,6 +33,33 @@ static int cmd_c(char *args) {
   return 0;
 }
 
+static int cmd_si(char *args) {
+  uint64_t n = 1;
+
+  if (args != NULL) {
+    char *endptr = NULL;
+    long val = strtol(args, &endptr, 10);
+
+    if (endptr == args || val <= 0) {
+      printf("Usage: si [N], where N is a positive integer\n");
+      return 0;
+    }
+
+    while (*endptr == ' ') {
+      endptr ++;
+    }
+    if (*endptr != '\0') {
+      printf("Usage: si [N], where N is a positive integer\n");
+      return 0;
+    }
+
+    n = (uint64_t)val;
+  }
+
+  cpu_exec(n);
+  return 0;
+}
+
 static int cmd_q(char *args) {
   return -1;
 }
@@ -77,6 +104,7 @@ static struct {
 } cmd_table [] = {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
+  { "si", "Step through N instructions (default 1)", cmd_si },
   { "q", "Exit NEMU", cmd_q },
   { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
 
