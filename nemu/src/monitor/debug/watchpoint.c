@@ -18,6 +18,19 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
+void wp_display(){
+ WP *cur =head;
+ if(cur==NULL){
+ printf("NO watchpoints.\n");
+ return;
+ }
+ 
+ while(cur!=NULL){
+ printf("Watchpoint %d\n",cur->NO);
+ cur=cur->next;
+ }
+}
+
 /* TODO: Implement the functionality of watchpoint */
 
 
