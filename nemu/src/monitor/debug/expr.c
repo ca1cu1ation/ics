@@ -155,24 +155,24 @@ static bool check_parentheses(int p, int q) {
 
 static int precedence(int type) {
   switch (type) {
-    case TK_AND:
     case TK_OR: return 1;
+    case TK_AND: return 2;
+    case TK_BIT_OR: return 3;
+    case TK_BIT_AND: return 4;
     case TK_EQ:
-    case TK_NEQ:
+    case TK_NEQ: return 5;
     case TK_LE:
     case TK_GE:
     case TK_LT:
-    case TK_GT: return 2;
-    case '+':
-    case '-': return 3;
-    case '*':
-    case '/': return 4;
-    case TK_NEG:
-    case TK_DEREF: return 5;
-    case TK_BIT_AND: return 6;
-    case TK_BIT_OR: return 7;
+    case TK_GT: return 6;
     case TK_LEFT:
-    case TK_RIGHT: return 8;
+    case TK_RIGHT: return 7;
+    case '+':
+    case '-': return 8;
+    case '*':
+    case '/': return 9;
+    case TK_NEG:
+    case TK_DEREF: return 10;
     default: return -1;
   }
 }
