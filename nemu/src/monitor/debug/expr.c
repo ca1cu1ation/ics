@@ -147,7 +147,7 @@ static bool check_parentheses(int p, int q) {
 
 static int precedence(int type) {
   switch (type) {
-    case TK_AND: return 1;
+    case TK_AND:
     case TK_OR: return 1;
     case TK_EQ:
     case TK_NEQ:
