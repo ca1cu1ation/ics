@@ -14,6 +14,10 @@ enum {
   TK_REG,
   TK_EQ,
   TK_NEQ,
+  TK_LE,
+  TK_GE,
+  TK_LT,
+  TK_GT,
   TK_AND,
   TK_NEG,
   TK_DEREF
@@ -37,6 +41,10 @@ static struct rule {
   {"\\$[a-zA-Z][a-zA-Z0-9]*", TK_REG}, // register
   {"==", TK_EQ},                    // equal
   {"!=", TK_NEQ},                   // not equal
+  {"<=", TK_LE},                    // less than or equal
+  {">=", TK_GE},                    // greater than or equal
+  {"<", TK_LT},                     // less than
+  {">", TK_GT},                     // greater than
   {"&&", TK_AND},                   // logical and
   {"\\+", '+'},                    // plus
   {"-", '-'},                       // minus
@@ -139,7 +147,11 @@ static int precedence(int type) {
   switch (type) {
     case TK_AND: return 1;
     case TK_EQ:
-    case TK_NEQ: return 2;
+    case TK_NEQ:
+    case TK_LE:
+    case TK_GE:
+    case TK_LT:
+    case TK_GT: return 2;
     case '+':
     case '-': return 3;
     case '*':
@@ -273,6 +285,10 @@ static uint32_t eval(int p, int q, bool *success) {
     case TK_EQ: return val1 == val2;
     case TK_NEQ: return val1 != val2;
     case TK_AND: return val1 && val2;
+    case TK_LE: return val1 <= val2;
+    case TK_GE: return val1 >= val2;
+    case TK_LT: return val1 < val2;
+    case TK_GT: return val1 > val2;
     default:
       *success = false;
       return 0;
