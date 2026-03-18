@@ -19,6 +19,7 @@ enum {
   TK_LT,
   TK_GT,
   TK_AND,
+  TK_OR,
   TK_NEG,
   TK_DEREF
 
@@ -46,6 +47,7 @@ static struct rule {
   {"<", TK_LT},                     // less than
   {">", TK_GT},                     // greater than
   {"&&", TK_AND},                   // logical and
+  {"||", TK_OR},                    // logical or
   {"\\+", '+'},                    // plus
   {"-", '-'},                       // minus
   {"\\*", '*'},                    // multiply/dereference
@@ -146,6 +148,7 @@ static bool check_parentheses(int p, int q) {
 static int precedence(int type) {
   switch (type) {
     case TK_AND: return 1;
+    case TK_OR: return 1;
     case TK_EQ:
     case TK_NEQ:
     case TK_LE:
@@ -285,6 +288,7 @@ static uint32_t eval(int p, int q, bool *success) {
     case TK_EQ: return val1 == val2;
     case TK_NEQ: return val1 != val2;
     case TK_AND: return val1 && val2;
+    case TK_OR: return val1 || val2;
     case TK_LE: return val1 <= val2;
     case TK_GE: return val1 >= val2;
     case TK_LT: return val1 < val2;
