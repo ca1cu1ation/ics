@@ -18,6 +18,10 @@ enum {
   TK_GE,
   TK_LT,
   TK_GT,
+  TK_LEFT,
+  TK_RIGHT,
+  TK_BIT_AND,
+  TK_BIT_OR,
   TK_AND,
   TK_OR,
   TK_NEG,
@@ -48,6 +52,10 @@ static struct rule {
   {">", TK_GT},                     // greater than
   {"&&", TK_AND},                   // logical and
   {"||", TK_OR},                    // logical or
+  {"<<",TK_LEFT},                   // left shift
+  {">>", TK_RIGHT},                  // right shift
+  {"&",TK_BIT_AND},                   // bitwise and
+  {"\\|", TK_BIT_OR},                // bitwise or
   {"\\+", '+'},                    // plus
   {"-", '-'},                       // minus
   {"\\*", '*'},                    // multiply/dereference
@@ -161,6 +169,10 @@ static int precedence(int type) {
     case '/': return 4;
     case TK_NEG:
     case TK_DEREF: return 5;
+    case TK_BIT_AND: return 6;
+    case TK_BIT_OR: return 7;
+    case TK_LEFT:
+    case TK_RIGHT: return 8;
     default: return -1;
   }
 }
@@ -293,6 +305,10 @@ static uint32_t eval(int p, int q, bool *success) {
     case TK_GE: return val1 >= val2;
     case TK_LT: return val1 < val2;
     case TK_GT: return val1 > val2;
+    case TK_BIT_AND: return val1 & val2;
+    case TK_BIT_OR: return val1 | val2;
+    case TK_LEFT: return val1 << val2;
+    case TK_RIGHT: return val1 >> val2;
     default:
       *success = false;
       return 0;
