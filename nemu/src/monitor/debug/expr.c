@@ -51,7 +51,7 @@ static struct rule {
   {"<", TK_LT},                     // less than
   {">", TK_GT},                     // greater than
   {"&&", TK_AND},                   // logical and
-  {"||", TK_OR},                    // logical or
+  {"\\|\\|", TK_OR},                    // logical or
   {"<<",TK_LEFT},                   // left shift
   {">>", TK_RIGHT},                  // right shift
   {"&",TK_BIT_AND},                   // bitwise and
