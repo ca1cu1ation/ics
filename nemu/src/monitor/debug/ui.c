@@ -83,6 +83,8 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 static int cmd_info(char *args);
+static int cmd_w(char *args);
+static int cmd_d(char *args);
 
 static void reg_display() {
   int i;
@@ -114,6 +116,49 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  while (*args == ' ') {
+    args ++;
+  }
+  if (*args == '\0') {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  new_wp(args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  if (args == NULL) {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  char *endptr = NULL;
+  long no = strtol(args, &endptr, 10);
+  if (endptr == args || no < 0) {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  while (*endptr == ' ') {
+    endptr ++;
+  }
+  if (*endptr != '\0') {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  delete_wp((int)no);
+  return 0;
+}
+
 static struct {
   char *name;
   char *description;
@@ -125,6 +170,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
   { "p", "Evaluate an expression and print the result", cmd_expr },
+  { "w", "Set a watchpoint: w EXPR", cmd_w },
+  { "d", "Delete a watchpoint by number: d N", cmd_d },
 
   /* TODO: Add more commands */
 
