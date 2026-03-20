@@ -52,7 +52,7 @@ WP *new_wp(const char *expr_str) {
   return wp;
 }
 
-bool delete_wp(int no) {
+bool free_wp(int no) {
   WP *prev = NULL;
   WP *cur = head;
 

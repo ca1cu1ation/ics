@@ -155,7 +155,7 @@ static int cmd_d(char *args) {
     return 0;
   }
 
-  delete_wp((int)no);
+  free_wp((int)no);
   return 0;
 }
 
