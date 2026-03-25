@@ -83,11 +83,8 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 static int cmd_info(char *args);
-<<<<<<< HEAD
-=======
 static int cmd_w(char *args);
 static int cmd_d(char *args);
->>>>>>> pa1
 
 static void reg_display() {
   int i;
@@ -118,8 +115,6 @@ static int cmd_info(char *args) {
   printf("Usage: info r|w\n");
   return 0;
 }
-<<<<<<< HEAD
-=======
 
 static int cmd_w(char *args) {
   if (args == NULL) {
@@ -163,7 +158,6 @@ static int cmd_d(char *args) {
   free_wp((int)no);
   return 0;
 }
->>>>>>> pa1
 
 static struct {
   char *name;
@@ -175,12 +169,9 @@ static struct {
   { "si", "Step through N instructions (default 1)", cmd_si },
   { "q", "Exit NEMU", cmd_q },
   { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
-<<<<<<< HEAD
-=======
   { "p", "Evaluate an expression and print the result", cmd_expr },
   { "w", "Set a watchpoint: w EXPR", cmd_w },
   { "d", "Delete a watchpoint by number: d N", cmd_d },
->>>>>>> pa1
 
   /* TODO: Add more commands */
 

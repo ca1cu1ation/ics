@@ -21,8 +21,6 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
-<<<<<<< HEAD
-=======
 WP *new_wp(const char *expr_str) {
   if (expr_str == NULL || *expr_str == '\0') {
     printf("Usage: w EXPR\n");
@@ -83,7 +81,6 @@ bool free_wp(int no) {
   return false;
 }
 
->>>>>>> pa1
 void wp_display() {
   WP *cur = head;
   if (cur == NULL) {
@@ -91,22 +88,14 @@ void wp_display() {
     return;
   }
 
-<<<<<<< HEAD
-  while (cur != NULL) {
-    printf("Watchpoint %d\n", cur->NO);
-=======
   printf("Num\tWhat\tValue\n");
 
   while (cur != NULL) {
     printf("%d\t%s\t0x%08x\n", cur->NO, cur->expr, cur->last_val);
->>>>>>> pa1
     cur = cur->next;
   }
 }
 
-<<<<<<< HEAD
-/* TODO: Implement the functionality of watchpoint */
-=======
 bool check_watchpoints() {
   bool changed = false;
   WP *cur = head;
@@ -137,6 +126,5 @@ bool check_watchpoints() {
 
   return changed;
 }
->>>>>>> pa1
 
 
