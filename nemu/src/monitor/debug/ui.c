@@ -33,12 +33,61 @@ static int cmd_c(char *args) {
   return 0;
 }
 
+static int cmd_si(char *args) {
+  uint64_t n = 1;
+
+  if (args != NULL) {
+    char *endptr = NULL;
+    long val = strtol(args, &endptr, 10);
+
+    if (endptr == args || val <= 0) {
+      printf("Usage: si [N], where N is a positive integer\n");
+      return 0;
+    }
+
+    while (*endptr == ' ') {
+      endptr ++;
+    }
+    if (*endptr != '\0') {
+      printf("Usage: si [N], where N is a positive integer\n");
+      return 0;
+    }
+
+    n = (uint64_t)val;
+  }
+
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_expr(char *args) {
+  if (args == NULL) {
+    printf("Usage: p EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  uint32_t result = expr(args, &success);
+  if (success) {
+    printf("0x%08x\n", result);
+  }
+  else {
+    printf("Invalid expression: %s\n", args);
+  }
+  return 0;
+}
+
 static int cmd_q(char *args) {
   return -1;
 }
 
 static int cmd_help(char *args);
 static int cmd_info(char *args);
+<<<<<<< HEAD
+=======
+static int cmd_w(char *args);
+static int cmd_d(char *args);
+>>>>>>> pa1
 
 static void reg_display() {
   int i;
@@ -69,6 +118,52 @@ static int cmd_info(char *args) {
   printf("Usage: info r|w\n");
   return 0;
 }
+<<<<<<< HEAD
+=======
+
+static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  while (*args == ' ') {
+    args ++;
+  }
+  if (*args == '\0') {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  new_wp(args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  if (args == NULL) {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  char *endptr = NULL;
+  long no = strtol(args, &endptr, 10);
+  if (endptr == args || no < 0) {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  while (*endptr == ' ') {
+    endptr ++;
+  }
+  if (*endptr != '\0') {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  free_wp((int)no);
+  return 0;
+}
+>>>>>>> pa1
 
 static struct {
   char *name;
@@ -77,8 +172,15 @@ static struct {
 } cmd_table [] = {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
+  { "si", "Step through N instructions (default 1)", cmd_si },
   { "q", "Exit NEMU", cmd_q },
   { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
+<<<<<<< HEAD
+=======
+  { "p", "Evaluate an expression and print the result", cmd_expr },
+  { "w", "Set a watchpoint: w EXPR", cmd_w },
+  { "d", "Delete a watchpoint by number: d N", cmd_d },
+>>>>>>> pa1
 
   /* TODO: Add more commands */
 
