@@ -1,46 +1,117 @@
 #include "cpu/exec.h"
 
+static inline void push_by_width(const rtlreg_t *src, int width) {
+  if (width == 2) {
+    reg_w(R_SP) -= 2;
+    t0 = *src & 0xffff;
+    vaddr_write(reg_w(R_SP), 2, t0);
+  }
+  else {
+    rtl_push(src);
+  }
+}
+
+static inline void pop_by_width(rtlreg_t *dest, int width) {
+  if (width == 2) {
+    *dest = vaddr_read(reg_w(R_SP), 2);
+    reg_w(R_SP) += 2;
+  }
+  else {
+    rtl_pop(dest);
+  }
+}
+
 make_EHelper(mov) {
   operand_write(id_dest, &id_src->val);
   print_asm_template2(mov);
 }
 
 make_EHelper(push) {
-  TODO();
+  push_by_width(&id_dest->val, id_dest->width);
 
   print_asm_template1(push);
 }
 
 make_EHelper(pop) {
-  TODO();
+  pop_by_width(&t0, id_dest->width);
+  operand_write(id_dest, &t0);
 
   print_asm_template1(pop);
 }
 
 make_EHelper(pusha) {
-  TODO();
+  if (decoding.is_operand_size_16) {
+    rtlreg_t temp_sp = reg_w(R_SP);
+    t0 = reg_w(R_AX); push_by_width(&t0, 2);
+    t0 = reg_w(R_CX); push_by_width(&t0, 2);
+    t0 = reg_w(R_DX); push_by_width(&t0, 2);
+    t0 = reg_w(R_BX); push_by_width(&t0, 2);
+    t0 = temp_sp;     push_by_width(&t0, 2);
+    t0 = reg_w(R_BP); push_by_width(&t0, 2);
+    t0 = reg_w(R_SI); push_by_width(&t0, 2);
+    t0 = reg_w(R_DI); push_by_width(&t0, 2);
+  }
+  else {
+    rtlreg_t temp_esp = reg_l(R_ESP);
+    t0 = reg_l(R_EAX); push_by_width(&t0, 4);
+    t0 = reg_l(R_ECX); push_by_width(&t0, 4);
+    t0 = reg_l(R_EDX); push_by_width(&t0, 4);
+    t0 = reg_l(R_EBX); push_by_width(&t0, 4);
+    t0 = temp_esp;     push_by_width(&t0, 4);
+    t0 = reg_l(R_EBP); push_by_width(&t0, 4);
+    t0 = reg_l(R_ESI); push_by_width(&t0, 4);
+    t0 = reg_l(R_EDI); push_by_width(&t0, 4);
+  }
 
   print_asm("pusha");
 }
 
 make_EHelper(popa) {
-  TODO();
+  if (decoding.is_operand_size_16) {
+    pop_by_width(&t0, 2); reg_w(R_DI) = t0;
+    pop_by_width(&t0, 2); reg_w(R_SI) = t0;
+    pop_by_width(&t0, 2); reg_w(R_BP) = t0;
+    pop_by_width(&t0, 2); /* skip SP */
+    pop_by_width(&t0, 2); reg_w(R_BX) = t0;
+    pop_by_width(&t0, 2); reg_w(R_DX) = t0;
+    pop_by_width(&t0, 2); reg_w(R_CX) = t0;
+    pop_by_width(&t0, 2); reg_w(R_AX) = t0;
+  }
+  else {
+    pop_by_width(&t0, 4); reg_l(R_EDI) = t0;
+    pop_by_width(&t0, 4); reg_l(R_ESI) = t0;
+    pop_by_width(&t0, 4); reg_l(R_EBP) = t0;
+    pop_by_width(&t0, 4); /* skip ESP */
+    pop_by_width(&t0, 4); reg_l(R_EBX) = t0;
+    pop_by_width(&t0, 4); reg_l(R_EDX) = t0;
+    pop_by_width(&t0, 4); reg_l(R_ECX) = t0;
+    pop_by_width(&t0, 4); reg_l(R_EAX) = t0;
+  }
 
   print_asm("popa");
 }
 
 make_EHelper(leave) {
-  TODO();
+  if (decoding.is_operand_size_16) {
+    reg_w(R_SP) = reg_w(R_BP);
+    pop_by_width(&t0, 2);
+    reg_w(R_BP) = t0;
+  }
+  else {
+    reg_l(R_ESP) = reg_l(R_EBP);
+    pop_by_width(&t0, 4);
+    reg_l(R_EBP) = t0;
+  }
 
   print_asm("leave");
 }
 
 make_EHelper(cltd) {
   if (decoding.is_operand_size_16) {
-    TODO();
+    reg_w(R_DX) = (reg_w(R_AX) & 0x8000) ? 0xffff : 0x0000;
   }
   else {
-    TODO();
+    reg_l(R_EDX) = (int32_t)reg_l(R_EAX) < 0 ? 0xffffffff : 0x00000000;
   }
 
   print_asm(decoding.is_operand_size_16 ? "cwtl" : "cltd");
@@ -48,10 +119,10 @@ make_EHelper(cltd) {
 
 make_EHelper(cwtl) {
   if (decoding.is_operand_size_16) {
-    TODO();
+    reg_w(R_AX) = (int8_t)reg_b(R_AL);
   }
   else {
-    TODO();
+    reg_l(R_EAX) = (int16_t)reg_w(R_AX);
   }
 
   print_asm(decoding.is_operand_size_16 ? "cbtw" : "cwtl");
