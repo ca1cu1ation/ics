@@ -26,6 +26,23 @@ make_EHelper(mov) {
   print_asm_template2(mov);
 }
 
+make_EHelper(xchg) {
+  if (decoding.opcode >= 0x90 && decoding.opcode <= 0x97) {
+    rtl_lr(&t0, R_EAX, id_dest->width);
+    operand_write(id_dest, &t0);
+    rtl_sr(R_EAX, id_dest->width, &id_dest->val);
+
+    print_asm("xchg%c %%%s,%s", suffix_char(id_dest->width), reg_name(R_EAX, id_dest->width), id_dest->str);
+    return;
+  }
+
+  t0 = id_dest->val;
+  operand_write(id_dest, &id_src->val);
+  operand_write(id_src, &t0);
+
+  print_asm_template2(xchg);
+}
+
 make_EHelper(push) {
   push_by_width(&id_dest->val, id_dest->width);
 
