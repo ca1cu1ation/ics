@@ -85,6 +85,7 @@ static int cmd_help(char *args);
 static int cmd_info(char *args);
 static int cmd_w(char *args);
 static int cmd_d(char *args);
+static int cmd_x(char *args);
 
 static void reg_display() {
   int i;
@@ -159,6 +160,52 @@ static int cmd_d(char *args) {
   return 0;
 }
 
+static int cmd_x(char *args) {
+  if (args == NULL) {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  while (*args == ' ') {
+    args ++;
+  }
+  if (*args == '\0') {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  char *endptr = NULL;
+  long n = strtol(args, &endptr, 10);
+  if (endptr == args || n <= 0) {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  while (*endptr == ' ') {
+    endptr ++;
+  }
+  if (*endptr == '\0') {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  uint32_t addr = expr(endptr, &success);
+  if (!success) {
+    printf("Invalid expression: %s\n", endptr);
+    return 0;
+  }
+
+  int i;
+  for (i = 0; i < n; i ++) {
+    uint32_t cur = addr + i * 4;
+    uint32_t val = vaddr_read(cur, 4);
+    printf("0x%08x: 0x%08x\n", cur, val);
+  }
+
+  return 0;
+}
+
 static struct {
   char *name;
   char *description;
@@ -170,6 +217,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "info", "Print program status (info r: registers, info w: watchpoints)", cmd_info },
   { "p", "Evaluate an expression and print the result", cmd_expr },
+  { "x", "Examine memory: x N EXPR", cmd_x },
   { "w", "Set a watchpoint: w EXPR", cmd_w },
   { "d", "Delete a watchpoint by number: d N", cmd_d },
 
