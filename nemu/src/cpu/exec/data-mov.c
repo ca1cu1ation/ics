@@ -27,6 +27,7 @@ make_EHelper(mov) {
 }
 
 make_EHelper(xchg) {
+  TODO();
   if (decoding.opcode >= 0x90 && decoding.opcode <= 0x97) {
     rtl_lr(&t0, R_EAX, id_dest->width);
     operand_write(id_dest, &t0);
