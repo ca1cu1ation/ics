@@ -2,6 +2,7 @@
 #include <x86.h>
 
 #define RTC_PORT 0x48   // Note that this is not standard
+#define SYNC_PORT 0x100
 #define I8042_DATA_PORT 0x60
 #define I8042_STATUS_PORT 0x64
 #define I8042_STATUS_HASKEY_MASK 0x1
@@ -42,6 +43,7 @@ void _draw_rect(const uint32_t *pixels, int x, int y, int w, int h) {
 }
 
 void _draw_sync() {
+  outl(SYNC_PORT, 1);
 }
 
 int _read_key() {
