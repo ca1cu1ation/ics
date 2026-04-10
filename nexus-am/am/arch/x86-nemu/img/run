@@ -1,3 +1,16 @@
 #!/bin/bash
 
+# Prefer a reachable X11 display in WSL-like environments.
+if command -v xdpyinfo >/dev/null 2>&1; then
+	if ! xdpyinfo >/dev/null 2>&1; then
+		if DISPLAY=:0 xdpyinfo >/dev/null 2>&1; then
+			export DISPLAY=:0
+		fi
+	fi
+fi
+
+# Avoid fragile GL/EGL paths in mixed WSL/X11 environments.
+export SDL_VIDEODRIVER=x11
+export LIBGL_ALWAYS_SOFTWARE=1
+
 make -C $NEMU_HOME run ARGS="-l `dirname $1`/nemu-log.txt $1.bin"
