@@ -63,6 +63,22 @@ make_EHelper(shr) {
   print_asm_template2(shr);
 }
 
+make_EHelper(rol) {
+  uint32_t bits = id_dest->width * 8;
+  uint32_t cnt = id_src->val & 0x1f;
+  if (cnt != 0) {
+    cnt %= bits;
+    if (cnt != 0) {
+      uint32_t mask = (bits == 32) ? 0xffffffffu : ((1u << bits) - 1);
+      uint32_t val = id_dest->val & mask;
+      t2 = ((val << cnt) | (val >> (bits - cnt))) & mask;
+      operand_write(id_dest, &t2);
+    }
+  }
+
+  print_asm_template2(rol);
+}
+
 make_EHelper(setcc) {
   uint8_t subcode = decoding.opcode & 0xf;
   rtl_setcc(&t2, subcode);
