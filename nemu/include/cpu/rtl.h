@@ -43,7 +43,7 @@ make_rtl_arith_logic(sar)
 make_rtl_arith_logic(slt)
 make_rtl_arith_logic(sltu)
 
- inline void rtl_mul(rtlreg_t* dest_hi, rtlreg_t* dest_lo, const rtlreg_t* src1, const rtlreg_t* src2) {
+static inline void rtl_mul(rtlreg_t* dest_hi, rtlreg_t* dest_lo, const rtlreg_t* src1, const rtlreg_t* src2) {
   asm volatile("mul %3" : "=d"(*dest_hi), "=a"(*dest_lo) : "a"(*src1), "r"(*src2));
 }
 
@@ -112,7 +112,7 @@ static inline void rtl_sr(int r, int width, const rtlreg_t* src1) {
 }
 
 #define make_rtl_setget_eflags(f) \
-  static inline void concat(rtl_set_, f) (const rtlreg_t* src) { \
+   inline void concat(rtl_set_, f) (const rtlreg_t* src) { \
     cpu.f = *src & 0x1; \
   } \
   static inline void concat(rtl_get_, f) (rtlreg_t* dest) { \
