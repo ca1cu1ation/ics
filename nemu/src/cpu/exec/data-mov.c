@@ -26,6 +26,17 @@ make_EHelper(mov) {
   print_asm_template2(mov);
 }
 
+make_EHelper(movs) {
+  int width = decoding.dest.width;
+  t0 = vaddr_read(reg_l(R_ESI), width);
+  vaddr_write(reg_l(R_EDI), width, t0);
+
+  reg_l(R_ESI) += width;
+  reg_l(R_EDI) += width;
+
+  print_asm("movs%c", suffix_char(width));
+}
+
 make_EHelper(xchg) {
   if (decoding.opcode >= 0x90 && decoding.opcode <= 0x97) {
     rtl_lr(&t0, R_EAX, id_dest->width);
