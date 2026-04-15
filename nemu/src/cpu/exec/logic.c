@@ -1,48 +1,82 @@
 #include "cpu/exec.h"
 
 make_EHelper(test) {
-  TODO();
+  rtl_and(&t2, &id_dest->val, &id_src->val);
+  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(test);
 }
 
 make_EHelper(and) {
-  TODO();
+  rtl_and(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
+  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(and);
 }
 
 make_EHelper(xor) {
-  TODO();
+  rtl_xor(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
+  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(xor);
 }
 
 make_EHelper(or) {
-  TODO();
+  rtl_or(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
+  rtl_update_ZFSF(&t2, id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(or);
 }
 
 make_EHelper(sar) {
-  TODO();
+  rtl_sar(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
   // unnecessary to update CF and OF in NEMU
 
   print_asm_template2(sar);
 }
 
 make_EHelper(shl) {
-  TODO();
+  rtl_shl(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
   // unnecessary to update CF and OF in NEMU
 
   print_asm_template2(shl);
 }
 
 make_EHelper(shr) {
-  TODO();
+  rtl_shr(&t2, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t2);
   // unnecessary to update CF and OF in NEMU
 
   print_asm_template2(shr);
+}
+
+make_EHelper(rol) {
+  uint32_t bits = id_dest->width * 8;
+  uint32_t cnt = id_src->val & 0x1f;
+  if (cnt != 0) {
+    cnt %= bits;
+    if (cnt != 0) {
+      uint32_t mask = (bits == 32) ? 0xffffffffu : ((1u << bits) - 1);
+      uint32_t val = id_dest->val & mask;
+      t2 = ((val << cnt) | (val >> (bits - cnt))) & mask;
+      operand_write(id_dest, &t2);
+    }
+  }
+
+  print_asm_template2(rol);
 }
 
 make_EHelper(setcc) {
@@ -54,7 +88,8 @@ make_EHelper(setcc) {
 }
 
 make_EHelper(not) {
-  TODO();
+  rtl_xori(&t2, &id_dest->val, 0xffffffff);
+  operand_write(id_dest, &t2);
 
   print_asm_template1(not);
 }

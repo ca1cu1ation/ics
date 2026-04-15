@@ -2,6 +2,7 @@
 #define __REG_H__
 
 #include "common.h"
+#include "memory/mmu.h"
 
 enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI };
 enum { R_AX, R_CX, R_DX, R_BX, R_SP, R_BP, R_SI, R_DI };
@@ -32,6 +33,25 @@ typedef struct {
   };
  };
   vaddr_t eip;
+  union {
+    uint32_t eflags;
+    struct {
+      uint32_t CF : 1;
+      uint32_t    : 5;
+      uint32_t ZF : 1;
+      uint32_t SF : 1;
+      uint32_t    : 1;
+      uint32_t IF : 1;
+      uint32_t    : 1;
+      uint32_t OF : 1;
+    };
+  };
+  struct {
+    uint16_t limit;
+    uint32_t base;
+  } idtr;
+  CR0 cr0;
+  CR3 cr3;
  
 } CPU_state;
 

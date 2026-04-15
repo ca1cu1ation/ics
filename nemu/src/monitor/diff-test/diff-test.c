@@ -85,7 +85,12 @@ void init_difftest(void) {
     }
 
     close(STDIN_FILENO);
-    execlp("qemu-system-i386", "qemu-system-i386", "-S", "-s", "-nographic", NULL);
+    execlp("qemu-system-i386", "qemu-system-i386",
+      "-S", "-s",
+      "-display", "none",
+      "-serial", "none",
+      "-monitor", "none",
+      NULL);
     perror("exec");
     panic("exec error");
   }
@@ -149,9 +154,28 @@ void difftest_step(uint32_t eip) {
 
   // TODO: Check the registers state with QEMU.
   // Set `diff` as `true` if they are not the same.
-  TODO();
+  if (r.eax != cpu.eax) { diff = true; }
+  if (r.ecx != cpu.ecx) { diff = true; }
+  if (r.edx != cpu.edx) { diff = true; }
+  if (r.ebx != cpu.ebx) { diff = true; }
+  if (r.esp != cpu.esp) { diff = true; }
+  if (r.ebp != cpu.ebp) { diff = true; }
+  if (r.esi != cpu.esi) { diff = true; }
+  if (r.edi != cpu.edi) { diff = true; }
+  if (r.eip != cpu.eip) { diff = true; }
 
   if (diff) {
+    printf("Difftest mismatch at eip = 0x%08x\n", eip);
+    printf("reg\tQEMU\t\tNEMU\n");
+    printf("eax\t0x%08x\t0x%08x\n", r.eax, cpu.eax);
+    printf("ecx\t0x%08x\t0x%08x\n", r.ecx, cpu.ecx);
+    printf("edx\t0x%08x\t0x%08x\n", r.edx, cpu.edx);
+    printf("ebx\t0x%08x\t0x%08x\n", r.ebx, cpu.ebx);
+    printf("esp\t0x%08x\t0x%08x\n", r.esp, cpu.esp);
+    printf("ebp\t0x%08x\t0x%08x\n", r.ebp, cpu.ebp);
+    printf("esi\t0x%08x\t0x%08x\n", r.esi, cpu.esi);
+    printf("edi\t0x%08x\t0x%08x\n", r.edi, cpu.edi);
+    printf("eip\t0x%08x\t0x%08x\n", r.eip, cpu.eip);
     nemu_state = NEMU_END;
   }
 }
