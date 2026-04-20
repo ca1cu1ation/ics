@@ -11,10 +11,14 @@ struct _RegSet {
   int       irq;
 };
 
-#define SYSCALL_ARG1(r) 0
-#define SYSCALL_ARG2(r) 0
-#define SYSCALL_ARG3(r) 0
-#define SYSCALL_ARG4(r) 0
+/*
+ * Trap frame layout in x86-nemu trap.S (after pushal):
+ * [0] edi [1] esi [2] ebp [3] esp [4] ebx [5] edx [6] ecx [7] eax ...
+ */
+#define SYSCALL_ARG1(r) ((uintptr_t)(((uint32_t *)(r))[7]))
+#define SYSCALL_ARG2(r) ((uintptr_t)(((uint32_t *)(r))[4]))
+#define SYSCALL_ARG3(r) ((uintptr_t)(((uint32_t *)(r))[6]))
+#define SYSCALL_ARG4(r) ((uintptr_t)(((uint32_t *)(r))[5]))
 
 #ifdef __cplusplus
 extern "C" {
