@@ -1,5 +1,6 @@
 #include "common.h"
 #include "syscall.h"
+#include "fs.h"
 
 int mm_brk(uint32_t new_brk);
 
@@ -17,18 +18,20 @@ _RegSet* do_syscall(_RegSet *r) {
     case SYS_exit:
       _halt((int)a[1]);
       break;
+    case SYS_open:
+      r->eax = fs_open((const char *)a[1], (int)a[2], (int)a[3]);
+      break;
+    case SYS_read:
+      r->eax = fs_read((int)a[1], (void *)a[2], (size_t)a[3]);
+      break;
     case SYS_write:
-      if (a[1] == 1 || a[1] == 2) {
-        const char *buf = (const char *)a[2];
-        size_t len = (size_t)a[3];
-        size_t i;
-        for (i = 0; i < len; i++) {
-          _putc(buf[i]);
-        }
-        r->eax = len;
-      } else {
-        r->eax = (uintptr_t)-1;
-      }
+      r->eax = fs_write((int)a[1], (const void *)a[2], (size_t)a[3]);
+      break;
+    case SYS_close:
+      r->eax = fs_close((int)a[1]);
+      break;
+    case SYS_lseek:
+      r->eax = fs_lseek((int)a[1], (off_t)a[2], (int)a[3]);
       break;
     case SYS_brk:
       r->eax = mm_brk(a[1]);
