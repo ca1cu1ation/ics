@@ -5,4 +5,8 @@
 
 enum {SEEK_SET, SEEK_CUR, SEEK_END};
 
+int fs_open(const char *pathname, int flags, int mode);
+size_t fs_read(int fd, void *buf, size_t len);
+int fs_close(int fd);
+
 #endif
