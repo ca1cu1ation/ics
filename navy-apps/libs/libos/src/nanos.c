@@ -81,7 +81,7 @@ int _fstat(int fd, struct stat *buf) {
   memset(buf, 0, sizeof(*buf));
 
   if (fd == 0 || fd == 1 || fd == 2) {
-    buf->st_mode = S_IFCHR;
+    buf->st_mode = _IFCHR;
     return 0;
   }
 
@@ -99,7 +99,7 @@ int _fstat(int fd, struct stat *buf) {
     return -1;
   }
 
-  buf->st_mode = S_IFREG;
+  buf->st_mode = _IFREG;
   buf->st_size = end;
   return 0;
 }
