@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <time.h>
+#include <string.h>
 #include "syscall.h"
 
 // TODO: discuss with syscall interface
@@ -73,6 +74,33 @@ off_t _lseek(int fd, off_t offset, int whence) {
 
 // not implement but used
 int _fstat(int fd, struct stat *buf) {
+  if (buf == NULL || fd < 0) {
+    return -1;
+  }
+
+  memset(buf, 0, sizeof(*buf));
+
+  if (fd == 0 || fd == 1 || fd == 2) {
+    buf->st_mode = S_IFCHR;
+    return 0;
+  }
+
+  off_t cur = _lseek(fd, 0, SEEK_CUR);
+  if (cur < 0) {
+    return -1;
+  }
+
+  off_t end = _lseek(fd, 0, SEEK_END);
+  if (end < 0) {
+    return -1;
+  }
+
+  if (_lseek(fd, cur, SEEK_SET) < 0) {
+    return -1;
+  }
+
+  buf->st_mode = S_IFREG;
+  buf->st_size = end;
   return 0;
 }
 
