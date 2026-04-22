@@ -87,6 +87,29 @@ make_EHelper(setcc) {
   print_asm("set%s %s", get_cc_name(subcode), id_dest->str);
 }
 
+make_EHelper(bsr) {
+  uint32_t src = id_src->val;
+  int msb = id_src->width * 8 - 1;
+
+  if (id_src->width == 2) {
+    src &= 0xffff;
+  }
+
+  if (src == 0) {
+    rtl_li(&t0, 1);
+    rtl_set_ZF(&t0);
+  } else {
+    while (((src >> msb) & 1) == 0) {
+      msb--;
+    }
+    rtl_li(&t2, msb);
+    operand_write(id_dest, &t2);
+    rtl_set_ZF(&tzero);
+  }
+
+  print_asm_template2(bsr);
+}
+
 make_EHelper(not) {
   rtl_xori(&t2, &id_dest->val, 0xffffffff);
   operand_write(id_dest, &t2);

@@ -47,6 +47,7 @@ make_EHelper(call);
 make_EHelper(call_rm);
 make_EHelper(ret);
 make_EHelper(setcc);
+make_EHelper(bsr);
 
 make_EHelper(nop);
 
