@@ -9,6 +9,34 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t events_read(void *buf, size_t len) {
+  static unsigned long last_uptime = 0;
+  char tmp[64];
+
+  int keycode = _read_key();
+  if (keycode != _KEY_NONE) {
+    int is_down = (keycode & 0x8000) != 0;
+    int code = keycode & ~0x8000;
+    int n = snprintf(tmp, sizeof(tmp), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
+    if (n <= 0) {
+      return 0;
+    }
+    size_t nwrite = (size_t)n < len ? (size_t)n : len;
+    memcpy(buf, tmp, nwrite);
+    return nwrite;
+  }
+
+  unsigned long now = _uptime();
+  if (now - last_uptime >= 1000 / 30) {
+    last_uptime = now;
+    int n = snprintf(tmp, sizeof(tmp), "t %lu\n", now);
+    if (n <= 0) {
+      return 0;
+    }
+    size_t nwrite = (size_t)n < len ? (size_t)n : len;
+    memcpy(buf, tmp, nwrite);
+    return nwrite;
+  }
+
   return 0;
 }
 
