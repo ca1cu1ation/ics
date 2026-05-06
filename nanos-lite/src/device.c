@@ -46,11 +46,14 @@ size_t events_read(void *buf, size_t len) {
       unsigned long now = _uptime();
       if (now - last_uptime >= 1000 / 30) {
         last_uptime = now;
+        printf("DEBUG: uptime=%lu\n", now);
         int n = snprintf(pending, sizeof(pending), "t %lu\n", now);
-        if (n <= 0) {
+        if (n <= 0 || n >= (int)sizeof(pending)) {
           pending_len = pending_pos = 0;
           continue;
         }
+        pending_len = (size_t)n;
+        pending_pos = 0;
         pending_len = (size_t)n;
         if (pending_len >= sizeof(pending)) {
           pending_len = sizeof(pending) - 1;
