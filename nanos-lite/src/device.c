@@ -66,6 +66,7 @@ size_t events_read(void *buf, size_t len) {
 
   size_t remain = pending_len - pending_pos;
   size_t nwrite = remain < len ? remain : len;
+  printf("DEBUG: pending='%s', pending_pos=%zu, pending_len=%zu, nwrite=%zu\n", pending, pending_pos, pending_len, nwrite);
   memcpy(buf, pending + pending_pos, nwrite);
   pending_pos += nwrite;
   return nwrite;
