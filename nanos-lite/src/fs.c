@@ -75,6 +75,10 @@ size_t fs_read(int fd, void *buf, size_t len) {
 size_t fs_write(int fd, const void *buf, size_t len) {
   assert(0 <= fd && fd < NR_FILES);
 
+  if (fd == FD_EVENTS) {
+    return 0;
+  }
+
   if (fd == FD_STDOUT || fd == FD_STDERR) {
     const char *cbuf = (const char *)buf;
     for (size_t i = 0; i < len; i++) {

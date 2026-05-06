@@ -67,6 +67,7 @@ size_t events_read(void *buf, size_t len) {
   if (len < remain) {
     return 0;
   }
+  printf("DEBUG: pending='%s' pending_len=%zu pending_pos=%zu\n", pending, pending_len, pending_pos);
   memcpy(buf, pending + pending_pos, remain);
   pending_pos += remain;
   return remain;
