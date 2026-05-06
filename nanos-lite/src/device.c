@@ -46,15 +46,13 @@ size_t events_read(void *buf, size_t len) {
       unsigned long now = _uptime();
       if (now - last_uptime >= 1000 / 30) {
         last_uptime = now;
-        printf("DEBUG: uptime=%lu\n", now);
-        int n = snprintf(pending, sizeof(pending), "t %lu\n", now);
-        if (n <= 0 || n >= (int)sizeof(pending)) {
+        int n = snprintf(pending, sizeof(pending), "t %u\n", (unsigned int)now);
+        if (n <= 0) {
           pending_len = pending_pos = 0;
           continue;
         }
         pending_len = (size_t)n;
         pending_pos = 0;
-        pending_len = (size_t)n;
         if (pending_len >= sizeof(pending)) {
           pending_len = sizeof(pending) - 1;
           pending[pending_len - 1] = '\n';
@@ -67,13 +65,10 @@ size_t events_read(void *buf, size_t len) {
   }
 
   size_t remain = pending_len - pending_pos;
-  if (len < remain) {
-    return 0;
-  }
-  printf("DEBUG: pending='%s' pending_len=%zu pending_pos=%zu\n", pending, pending_len, pending_pos);
-  memcpy(buf, pending + pending_pos, remain);
-  pending_pos += remain;
-  return remain;
+  size_t nwrite = remain < len ? remain : len;
+  memcpy(buf, pending + pending_pos, nwrite);
+  pending_pos += nwrite;
+  return nwrite;
 }
 
 static char dispinfo[128] __attribute__((used));
