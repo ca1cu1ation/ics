@@ -45,11 +45,25 @@ size_t fs_read(int fd, void *buf, size_t len) {
   assert(0 <= fd && fd < NR_FILES);
 
   if (fd == FD_EVENTS) {
-    size_t nread = 0;
-    while (nread == 0) {
-      nread = events_read(buf, len);
+    if (len == 0) {
+      return 0;
     }
-    return nread;
+
+    size_t total = 0;
+    while (total < len) {
+      size_t nread = events_read((char *)buf + total, len - total);
+      if (nread == 0) {
+        continue;
+      }
+      for (size_t i = 0; i < nread; i++) {
+        if (((char *)buf)[total + i] == '\n') {
+          total += nread;
+          return total;
+        }
+      }
+      total += nread;
+    }
+    return total;
   }
 
   if (fd == FD_DISPINFO) {
