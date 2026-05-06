@@ -64,10 +64,12 @@ size_t events_read(void *buf, size_t len) {
   }
 
   size_t remain = pending_len - pending_pos;
-  size_t nwrite = remain < len ? remain : len;
-  memcpy(buf, pending + pending_pos, nwrite);
-  pending_pos += nwrite;
-  return nwrite;
+  if (len < remain) {
+    return 0;
+  }
+  memcpy(buf, pending + pending_pos, remain);
+  pending_pos += remain;
+  return remain;
 }
 
 static char dispinfo[128] __attribute__((used));
