@@ -57,13 +57,13 @@ size_t fs_read(int fd, void *buf, size_t len) {
       }
       for (size_t i = 0; i < nread; i++) {
         if (((char *)buf)[total + i] == '\n') {
-          total += nread;
-          Log("fs_read events total=%d", total); return total;
+          total += i + 1;
+          return total;
         }
       }
       total += nread;
     }
-    Log("fs_read events total=%d", total); return total;
+    return total;
   }
 
   if (fd == FD_DISPINFO) {
