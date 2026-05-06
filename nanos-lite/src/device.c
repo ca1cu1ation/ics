@@ -10,34 +10,47 @@ static const char *keyname[256] __attribute__((used)) = {
 
 size_t events_read(void *buf, size_t len) {
   static unsigned long last_uptime = 0;
-  char tmp[64];
+  static char pending[64];
+  static size_t pending_len = 0;
+  static size_t pending_pos = 0;
 
-  int keycode = _read_key();
-  if (keycode != _KEY_NONE) {
-    int is_down = (keycode & 0x8000) != 0;
-    int code = keycode & ~0x8000;
-    int n = snprintf(tmp, sizeof(tmp), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
-    if (n <= 0) {
-      return 0;
-    }
-    size_t nwrite = (size_t)n < len ? (size_t)n : len;
-    memcpy(buf, tmp, nwrite);
-    return nwrite;
+  if (len == 0) {
+    return 0;
   }
 
-  unsigned long now = _uptime();
-  if (now - last_uptime >= 1000 / 30) {
-    last_uptime = now;
-    int n = snprintf(tmp, sizeof(tmp), "t %lu\n", now);
-    if (n <= 0) {
-      return 0;
+  if (pending_pos >= pending_len) {
+    int keycode = _read_key();
+    if (keycode != _KEY_NONE) {
+      int is_down = (keycode & 0x8000) != 0;
+      int code = keycode & ~0x8000;
+      int n = snprintf(pending, sizeof(pending), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
+      if (n <= 0) {
+        pending_len = pending_pos = 0;
+        return 0;
+      }
+      pending_len = (size_t)n;
+      pending_pos = 0;
+    } else {
+      unsigned long now = _uptime();
+      if (now - last_uptime < 1000 / 30) {
+        return 0;
+      }
+      last_uptime = now;
+      int n = snprintf(pending, sizeof(pending), "t %lu\n", now);
+      if (n <= 0) {
+        pending_len = pending_pos = 0;
+        return 0;
+      }
+      pending_len = (size_t)n;
+      pending_pos = 0;
     }
-    size_t nwrite = (size_t)n < len ? (size_t)n : len;
-    memcpy(buf, tmp, nwrite);
-    return nwrite;
   }
 
-  return 0;
+  size_t remain = pending_len - pending_pos;
+  size_t nwrite = remain < len ? remain : len;
+  memcpy(buf, pending + pending_pos, nwrite);
+  pending_pos += nwrite;
+  return nwrite;
 }
 
 static char dispinfo[128] __attribute__((used));
