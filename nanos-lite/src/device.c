@@ -19,30 +19,33 @@ size_t events_read(void *buf, size_t len) {
   }
 
   if (pending_pos >= pending_len) {
-    int keycode = _read_key();
-    if (keycode != _KEY_NONE) {
-      int is_down = (keycode & 0x8000) != 0;
-      int code = keycode & ~0x8000;
-      int n = snprintf(pending, sizeof(pending), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
-      if (n <= 0) {
-        pending_len = pending_pos = 0;
-        return 0;
+    while (pending_pos >= pending_len) {
+      int keycode = _read_key();
+      if (keycode != _KEY_NONE) {
+        int is_down = (keycode & 0x8000) != 0;
+        int code = keycode & ~0x8000;
+        int n = snprintf(pending, sizeof(pending), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
+        if (n <= 0) {
+          pending_len = pending_pos = 0;
+          continue;
+        }
+        pending_len = (size_t)n;
+        pending_pos = 0;
+        break;
       }
-      pending_len = (size_t)n;
-      pending_pos = 0;
-    } else {
+
       unsigned long now = _uptime();
-      if (now - last_uptime < 1000 / 30) {
-        return 0;
+      if (now - last_uptime >= 1000 / 30) {
+        last_uptime = now;
+        int n = snprintf(pending, sizeof(pending), "t %lu\n", now);
+        if (n <= 0) {
+          pending_len = pending_pos = 0;
+          continue;
+        }
+        pending_len = (size_t)n;
+        pending_pos = 0;
+        break;
       }
-      last_uptime = now;
-      int n = snprintf(pending, sizeof(pending), "t %lu\n", now);
-      if (n <= 0) {
-        pending_len = pending_pos = 0;
-        return 0;
-      }
-      pending_len = (size_t)n;
-      pending_pos = 0;
     }
   }
 
