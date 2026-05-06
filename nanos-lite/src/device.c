@@ -24,12 +24,21 @@ size_t events_read(void *buf, size_t len) {
       if (keycode != _KEY_NONE) {
         int is_down = (keycode & 0x8000) != 0;
         int code = keycode & ~0x8000;
-        int n = snprintf(pending, sizeof(pending), "%s %s\n", is_down ? "kd" : "ku", keyname[code]);
+        const char *name = "NONE";
+        if (code >= 0 && code < (int)(sizeof(keyname) / sizeof(keyname[0])) && keyname[code]) {
+          name = keyname[code];
+        }
+        int n = snprintf(pending, sizeof(pending), "%s %s\n", is_down ? "kd" : "ku", name);
         if (n <= 0) {
           pending_len = pending_pos = 0;
           continue;
         }
         pending_len = (size_t)n;
+        if (pending_len >= sizeof(pending)) {
+          pending_len = sizeof(pending) - 1;
+          pending[pending_len - 1] = '\n';
+          pending[pending_len] = '\0';
+        }
         pending_pos = 0;
         break;
       }
@@ -43,6 +52,11 @@ size_t events_read(void *buf, size_t len) {
           continue;
         }
         pending_len = (size_t)n;
+        if (pending_len >= sizeof(pending)) {
+          pending_len = sizeof(pending) - 1;
+          pending[pending_len - 1] = '\n';
+          pending[pending_len] = '\0';
+        }
         pending_pos = 0;
         break;
       }
