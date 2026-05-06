@@ -58,7 +58,9 @@ void *_sbrk(intptr_t increment){
 }
 
 int _read(int fd, void *buf, size_t count) {
-  return _syscall_(SYS_read, fd, (uintptr_t)buf, count);
+  int ret = _syscall_(SYS_read, fd, (uintptr_t)buf, count);
+  if (fd == 4 && ret <= 0) { char msg[] = "READ_RET_0\n"; _syscall_(SYS_write, 1, (uintptr_t)msg, 11); }
+  return ret;
 }
 
 int _close(int fd) {
